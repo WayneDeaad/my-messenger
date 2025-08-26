@@ -1,9 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  output: 'standalone',
-  experimental: {
-    outputFileTracingRoot: undefined,
+  output: 'export',
+  trailingSlash: true,
+  images: {
+    unoptimized: true
   },
 };
 
