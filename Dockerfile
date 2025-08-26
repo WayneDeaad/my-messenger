@@ -18,29 +18,15 @@ COPY . .
 # Собираем приложение
 RUN npm run build
 
-# Продакшн образ, копируем все необходимое и запускаем
-FROM base AS runner
-WORKDIR /app
+# Продакшн образ для статического экспорта
+FROM nginx:alpine AS runner
 
-ENV NODE_ENV production
+# Копируем статические файлы
+COPY --from=builder /app/out /usr/share/nginx/html
 
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
+# Копируем конфигурацию nginx
+COPY nginx.conf /etc/nginx/nginx.conf
 
-COPY --from=builder /app/public ./public
+EXPOSE 80
 
-# Автоматически используем output standalone для уменьшения размера образа
-RUN mkdir .next
-RUN chown nextjs:nodejs .next
-
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
-
-USER nextjs
-
-EXPOSE 3000
-
-ENV PORT 3000
-ENV HOSTNAME "0.0.0.0"
-
-CMD ["node", "server.js"]
+CMD ["nginx", "-g", "daemon off;"]
