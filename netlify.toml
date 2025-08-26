@@ -1,6 +1,7 @@
 [build]
   publish = ".next"
   command = "npm run build"
+  ignore = "exit-code"
 
 [build.environment]
   NODE_VERSION = "18"

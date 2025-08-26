@@ -242,7 +242,7 @@ export default function Home() {
     return () => {
       newSocket.close()
     }
-  }, [])
+  }, [userProfile.name, userProfile.avatar])
 
   // Очистка таймера при размонтировании
   useEffect(() => {
@@ -321,23 +321,12 @@ export default function Home() {
     const isImage = file.type.startsWith("image/")
     const fileSize = (file.size / 1024 / 1024).toFixed(1) + " MB"
 
-    const newMessage: Message = {
-      id: uuidv4(),
-      from: currentUser?.id || "",
-      to: activeChat || "",
-      text: isImage ? "Изображение" : file.name,
-      time: new Date().toISOString(),
-      type: isImage ? "image" : "file",
-      fileName: file.name,
-      fileSize: fileSize,
-    }
-
     // Отправляем файл через Socket.IO
     if (socket && activeChat) {
       socket.emit("sendMessage", {
         to: activeChat,
-        text: newMessage.text,
-        type: newMessage.type
+        text: isImage ? "Изображение" : file.name,
+        type: isImage ? "image" : "file"
       })
     }
 
@@ -571,7 +560,7 @@ export default function Home() {
                     {statusOptions.map((status) => (
                       <button
                         key={status.value}
-                        onClick={() => changeUserStatus(status.value as any)}
+                        onClick={() => changeUserStatus(status.value as "online" | "away" | "busy" | "offline")}
                         className={`w-full p-3 text-left hover:bg-gray-700/70 transition-colors flex items-center gap-3 text-gray-300 text-sm first:rounded-t-xl last:rounded-b-xl ${
                           userProfile.status === status.value ? "bg-gray-700/50" : ""
                         }`}
